@@ -56,11 +56,11 @@ Push this source to a Git provider, for example `Github`.
 
 6. After the deployment finish successfully, take note the app domain
 
-7. Go yo Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with your app domain
+7. Go to Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with your app domain
 
 ## Setting up for local running
 
-1. Go yo Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with localhost
+1. Go to Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with localhost
 
 2. Login AWS Console, go to your amplify app console, go to **Deployed backend resources** then download `amplify_outputs.json` and put it into the root path of the project
 
