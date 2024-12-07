@@ -1,0 +1,12 @@
+div[data-amplify-authenticator] {
+  min-height: 100vh;
+  background-image: linear-gradient(to right, rgb(0, 231, 223), rgb(0, 119, 255));
+}
+
+div[data-amplify-router] {
+  border: none !important;
+}
+
+button.amplify-button--primary {
+  background-color: rgb(23, 23, 23);
+}
