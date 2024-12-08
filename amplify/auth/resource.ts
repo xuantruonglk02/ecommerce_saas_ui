@@ -14,7 +14,7 @@ export const auth = defineAuth({
         scopes: ['email', 'profile'],
       },
       logoutUrls: ['http://localhost:3000/', 'https://main.d1m7z4lj27zyc9.amplifyapp.com/'],
-      callbackUrls: ['http://localhost:3000/dashboard', 'https://main.d1m7z4lj27zyc9.amplifyapp.com/dashboard'],
+      callbackUrls: ['http://localhost:3000/', 'https://main.d1m7z4lj27zyc9.amplifyapp.com/'],
     },
   },
 });

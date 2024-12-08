@@ -1,17 +1,19 @@
+import { Schema } from "@/amplify/data/resource";
 import { Button } from "@/components/ui/button";
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import { useSearchParams } from 'next/navigation';
-import React from 'react';
+import { generateClient } from "aws-amplify/api";
+import { useRouter } from "next/navigation";
+import { useState } from 'react';
 
-export default function CheckoutForm({ dpmCheckerLink }: { dpmCheckerLink: string }) {
+const client = generateClient<Schema>();
+
+export default function CheckoutForm({ email, plan, isLoggedIn, dpmCheckerLink }: { email: string, plan: string, isLoggedIn: boolean, dpmCheckerLink: string }) {
+  const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
 
-  const [message, setMessage] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  const searchParams = useSearchParams();
-  const plan = searchParams.get('plan');
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (event: any) => {
@@ -23,22 +25,39 @@ export default function CheckoutForm({ dpmCheckerLink }: { dpmCheckerLink: strin
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/thankyou?plan=${plan}`,
-      },
-    });
-
-    if (error.type === 'card_error' || error.type === 'validation_error') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setMessage(error.message as any);
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setMessage('An unexpected error occurred.' as any);
-    }
-
-    setIsLoading(false);
+      confirmParams: {},
+      redirect: 'if_required',
+    })
+      .then((data) => {
+        if (data.error) {
+          if (data.error.type === 'card_error' || data.error.type === 'validation_error') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setMessage(data.error.message as any);
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setMessage('An unexpected error occurred.');
+          }
+        } else {
+          client.models.UserPlan.observeQuery().subscribe({
+            next: (data) => new Promise((resolve, reject) => {
+              const existed = data.items.find((e) => e.email === email);
+              if (existed) {
+                client.models.UserPlan.update({ id: existed.id, plan: plan })
+                  .then(resolve)
+                  .catch(reject);
+              } else {
+                client.models.UserPlan.create({ email: email, plan: plan })
+                  .then(resolve)
+                  .catch(reject);
+              }
+            })
+              .then((data) => router.push(isLoggedIn ? `${window.location.origin}/thankyou?plan=${plan}` : `${window.location.origin}/login`))
+              .catch((error) => setMessage(error.message || 'Got error. Please try again.')),
+          });
+        }
+      }).finally(() => setIsLoading(false));
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,7 +70,7 @@ export default function CheckoutForm({ dpmCheckerLink }: { dpmCheckerLink: strin
       <form id='payment-form' onSubmit={handleSubmit}>
         <PaymentElement id='payment-element' options={paymentElementOptions} />
         <Button disabled={isLoading || !stripe || !elements} id='submit' className='mt-4' style={{width: '100%'}}>
-          <span id='button-text'>{!isLoading ? <div className='spinner' id='spinner'></div> : 'Pay now'}</span>
+          <span id='button-text'>{isLoading ? <div className='spinner' id='spinner'></div> : 'Pay now'}</span>
         </Button>
         {message && <div id='payment-message'>{message}</div>}
       </form>

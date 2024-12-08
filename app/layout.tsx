@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import localFont from 'next/font/local';
+import { Suspense } from 'react';
 import './globals.css';
 
 Amplify.configure(outputs);
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Authenticator.Provider>
           <Header />
-          {children}
+            <Suspense>
+              {children}
+            </Suspense>
           <Footer />
           <Toaster />
         </Authenticator.Provider>

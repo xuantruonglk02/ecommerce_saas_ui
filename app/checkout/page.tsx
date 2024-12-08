@@ -39,7 +39,7 @@ export default function Checkout() {
           />
         </div>
         <Card className='w-[450px] p-4'>
-          <Stripe />
+          <Stripe plan={plan as string} />
         </Card>
       </div>
     </div>

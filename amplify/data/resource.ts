@@ -13,7 +13,13 @@ const schema = a.schema({
       value: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
-});
+  UserPlan: a
+    .model({
+      email: a.string(),
+      plan: a.string(),
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
+  });
 
 export type Schema = ClientSchema<typeof schema>;
 

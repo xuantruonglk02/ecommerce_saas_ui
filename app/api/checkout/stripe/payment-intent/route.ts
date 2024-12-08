@@ -5,15 +5,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { items } = body;
+  const { email, plan } = body;
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(items),
-    currency: 'eur',
+  const payload: Stripe.PaymentIntentCreateParams = {
+    amount: calculateOrderAmount(plan),
+    currency: 'usd',
     automatic_payment_methods: {
       enabled: true,
     },
-  });
+  };
+
+  if (email) {
+    payload.receipt_email = email;
+  }
+
+  console.log(payload)
+
+  const paymentIntent = await stripe.paymentIntents.create(payload);
 
   return NextResponse.json({
     clientSecret: paymentIntent.client_secret,
@@ -22,6 +30,6 @@ export async function POST(request: Request) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-function calculateOrderAmount(items: any) {
-  return 1400;
+function calculateOrderAmount(plan: string) {
+  return plan === 'basic' ? 500 : 800;
 }
