@@ -19,8 +19,6 @@ export async function POST(request: Request) {
     payload.receipt_email = email;
   }
 
-  console.log(payload)
-
   const paymentIntent = await stripe.paymentIntents.create(payload);
 
   return NextResponse.json({

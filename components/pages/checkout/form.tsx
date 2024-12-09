@@ -40,11 +40,10 @@ export default function CheckoutForm({ email, plan, isLoggedIn, dpmCheckerLink }
             setMessage('An unexpected error occurred.');
           }
         } else {
-          client.models.UserPlan.observeQuery().subscribe({
-            next: (data) => new Promise((resolve, reject) => {
-              const existed = data.items.find((e) => e.email === email);
-              if (existed) {
-                client.models.UserPlan.update({ id: existed.id, plan: plan })
+          client.models.UserPlan.list({ filter: { email: { eq: email } }})
+            .then((data) => new Promise((resolve, reject) => {
+              if (data.data.length) {
+                client.models.UserPlan.update({ id: data.data[0].id, plan: plan })
                   .then(resolve)
                   .catch(reject);
               } else {
@@ -52,10 +51,9 @@ export default function CheckoutForm({ email, plan, isLoggedIn, dpmCheckerLink }
                   .then(resolve)
                   .catch(reject);
               }
-            })
-              .then((data) => router.push(isLoggedIn ? `${window.location.origin}/thankyou?plan=${plan}` : `${window.location.origin}/login`))
-              .catch((error) => setMessage(error.message || 'Got error. Please try again.')),
-          });
+            }))
+            .then((data) => router.push(`/thankyou${isLoggedIn ? '?loggedIn=ok' : ''}`))
+            .catch((error) => setMessage(error.message || 'Got error. Please try again.'));
         }
       }).finally(() => setIsLoading(false));
   };

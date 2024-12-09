@@ -7,7 +7,11 @@ import { Hub } from 'aws-amplify/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import './login.css';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/api';
+import { Schema } from '@/amplify/data/resource';
+
+const client = generateClient<Schema>();
 
 export default function Login() {
   const router = useRouter();
