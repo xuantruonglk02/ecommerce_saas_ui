@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 const client = generateClient<Schema>();
 
-export default function CheckoutForm({ email, plan, isLoggedIn, dpmCheckerLink }: { email: string, plan: string, isLoggedIn: boolean, dpmCheckerLink: string }) {
+export default function CheckoutForm({ email, plan, dpmCheckerLink }: { email: string, plan: string, dpmCheckerLink: string }) {
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
@@ -52,7 +52,7 @@ export default function CheckoutForm({ email, plan, isLoggedIn, dpmCheckerLink }
                   .catch(reject);
               }
             }))
-            .then((data) => router.push(`/thankyou${isLoggedIn ? '?loggedIn=ok' : ''}`))
+            .then((data) => router.push(`/thankyou`))
             .catch((error) => setMessage(error.message || 'Got error. Please try again.'));
         }
       }).finally(() => setIsLoading(false));

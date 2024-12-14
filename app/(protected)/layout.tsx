@@ -1,15 +1,16 @@
 'use client';
 
-import { getCurrentUser } from 'aws-amplify/auth';
+import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 
 export default function PrivateLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    getCurrentUser().catch((error) => router.push('/login'));
-  }, []);
+  if (!user.email) {
+    return router.push('/login');
+  }
 
   return (
     <Suspense>

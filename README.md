@@ -16,7 +16,7 @@ This template equips you with a foundational Next.js application integrated with
 
 ### Stripe account
 
-1. Create Stripe account. The new account is in test mode as soon as you create it. `https://docs.stripe.com/get-started/account`
+1. Create Stripe account. The new account is in test mode as soon as you create it. `https://dashboard.stripe.com/developers`
 
 2. Collect your `Publishable key` and `Secret key` from `https://dashboard.stripe.com/test/apikeys`
 
@@ -25,6 +25,22 @@ This template equips you with a foundational Next.js application integrated with
    ```
    STRIPE_SECRET_KEY=<Secret key>
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<Publishable key>
+   ```
+
+4. Enable necessary payment method: `https://dashboard.stripe.com/test/settings/payment_methods`. If you want to enable Appla Pay, you must register the Apple Developer first.
+
+### Paypal account
+
+1. Create new account here: `https://www.paypal.com/webapps/mpp/account-selection?intent=developer&country.x=US&locale.x=en_US`
+
+2. Collect API keys: `https://developer.paypal.com/dashboard/applications/sandbox`
+
+3. Write your keys to the `.env` file:
+
+   ```
+   PAYPAL_CLIENT_ID=<Client ID>
+   PAYPAL_CLIENT_SECRET=<Secret>
+   NEXT_PUBLIC_PAYPAL_CLIENT_ID=<Client ID>
    ```
 
 ### Google Console
@@ -48,7 +64,7 @@ Push this source to a Git provider, for example `Github`.
 
 2. Choose where to get your source code: Select the repository and the main branch
 
-3. In **App settings** -> **Advanced settings**, add new environment variables by `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in your `.env` file
+3. In **App settings** -> **Advanced settings**, add new environment variables. Write all variables in your `.env` file to settings form
 
 4. Click **Save and deploy** to deploy the app. Meanwhile, go to **Hosting** -> **Secrets** and add your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` into app secrets
 
@@ -56,11 +72,17 @@ Push this source to a Git provider, for example `Github`.
 
 6. After the deployment finish successfully, take note the app domain
 
-7. Go to Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with your app domain
+7. Go yo Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with your app domain
+
+### Test card
+
+- Stripe: `https://docs.stripe.com/testing`
+
+- Paypal: `https://developer.paypal.com/tools/sandbox/card-testing/`
 
 ## Setting up for local running
 
-1. Go to Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with localhost
+1. Go yo Google Console, update the **Authorized domains**, **Authorized JavaScript origins** and **Authorized redirect URIs** with localhost
 
 2. Login AWS Console, go to your amplify app console, go to **Deployed backend resources** then download `amplify_outputs.json` and put it into the root path of the project
 

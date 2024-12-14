@@ -1,7 +1,6 @@
 'use client';
 
-import Stripe from '@/components/pages/checkout/stripe';
-import { Card } from '@/components/ui/card';
+import CheckoutForm from '@/components/pages/checkout/checkout-form';
 import { useSearchParams } from 'next/navigation';
 import './checkout.css';
 
@@ -38,9 +37,7 @@ export default function Checkout() {
             style={{ maxWidth: '250px', marginLeft: 'auto' }}
           />
         </div>
-        <Card className='w-[450px] p-4'>
-          <Stripe plan={plan as string} />
-        </Card>
+        <CheckoutForm plan={plan as string} />
       </div>
     </div>
   );

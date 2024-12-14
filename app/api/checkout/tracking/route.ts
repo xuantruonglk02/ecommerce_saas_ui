@@ -1,21 +1,44 @@
+import { Schema } from '@/amplify/data/resource';
+import outputs from '@/amplify_outputs.json';
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/data';
+import { NextResponse } from 'next/server';
+
+Amplify.configure(outputs);
+
+const client = generateClient<Schema>();
+
 export const POST = async (request: Request) => {
-  // if (!req.auth) {
-  //   return Response.json({ message: 'Unauthorized' }, { status: 401 });
-  // }
-
-  // const body = await req.json();
-  // await connectDB();
-
-  // const { plan } = body;
-  // if (!plan) return Response.json({ success: false }, { status: 400 });
-
-  // const user = await User.findOne({ email: req.auth.user?.email }).select('-password');
-  // if (!user) {
-  //   throw new Error('User not found');
-  // }
-
-  // user.plan = plan;
-  // await user.save();
-
-  // return Response.json({ success: true, user });
+  const body = await request.json();
+  const { orderId } = body;
+  
+  try {
+    const order = await client.models.Order.get({
+      id: orderId,
+    });
+    if (!order.data?.id) {
+      return NextResponse.json({
+        success: false,
+        error: order.errors,
+      }, { status: 500 });
+    }
+  
+    await client.models.Order.update({
+      id: orderId,
+      status: 'done',
+    });
+  
+    return NextResponse.json({
+      success: true,
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      {
+        success: false,
+        error,
+      },
+      { status: 500 }
+    );
+  }
 };

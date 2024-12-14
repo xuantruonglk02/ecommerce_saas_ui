@@ -2,11 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { useAuthStore } from '@/store/authStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { HEADER_LINKS, HEADER_REMOVE_PAGES, HEADER_START_NOW } from '../config/header_links';
 import MobileNav from './mobile-nav';
 
@@ -21,14 +20,12 @@ function removeHeader(path: string, rm_path: Array<string>): boolean {
 }
 
 export default function Header() {
+  const user = useAuthStore((state) => state.user);
+  const isLoggedIn = !!user.email;
+
   const pathname = usePathname();
   const routes = HEADER_LINKS;
   const isHidden = removeHeader(pathname, HEADER_REMOVE_PAGES);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    getCurrentUser().then((data) => setIsLoggedIn(true));
-  }, []);
 
   return (
     <header

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Spinner from "@/components/ui/spinner";
 import { useToast } from "@/hooks/use-toast";
-import { fetchUserAttributes } from "aws-amplify/auth";
+import { useAuthStore } from "@/store/authStore";
 import { generateClient } from "aws-amplify/data";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,11 +16,15 @@ const client = generateClient<Schema>();
 export default function Dashboard() {
   const router = useRouter();
   const { toast } = useToast();
-  const [user, setUser] = useState('');
-  const [plan, setPlan] = useState('');
+  const user = useAuthStore((state) => state.user);
+
   const [strategies, setStrategies] = useState<Array<Schema["Strategy"]["type"]>>([]);
   const [strategyName, setStrategyName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!user.plan) {
+    return router.push('/#pricing');
+  }
 
   function listStrategies() {
     client.models.Strategy.observeQuery().subscribe({
@@ -30,20 +34,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     listStrategies();
-    fetchUserAttributes().then((data) => {
-      setUser(data.email as string);
-      client.models.UserPlan.list({
-        filter: {
-          email: { eq: data.email },
-        }
-      }).then((data) => {
-        if (!data.data[0]) {
-          router.push('/#pricing')
-        } else {
-          setPlan(data.data[0].plan as string);
-        }
-      })
-    });
   }, []);
 
   function createStrategy() {
@@ -66,7 +56,7 @@ export default function Dashboard() {
     <div className='w-full max-w-xl mx-auto space-y-8 pt-20'>
       <div className='space-y-2'>
         <h1 className='text-4xl font-bold tracking-tight'>Your Popups and Strategies</h1>
-        <p className='text-xl text-muted-foreground'>Welcome {user + (plan ? `, ${plan}` : '')}</p>
+        <p className='text-xl text-muted-foreground'>Welcome {user.email + (user.plan ? `, ${user.plan}` : '')}</p>
       </div>
 
       <p className='text-lg'>Create a new strategy or choose one</p>
@@ -79,8 +69,8 @@ export default function Dashboard() {
               <SelectValue placeholder='Select a strategy' />
             </SelectTrigger>
             <SelectContent>
-              {strategies.map((strategy) => (
-                <SelectItem key={strategy.value} value={strategy.value as string}>
+              {strategies.map((strategy, index) => (
+                <SelectItem key={index} value={strategy.value as string}>
                   {strategy.label}
                 </SelectItem>
               ))}

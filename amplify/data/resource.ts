@@ -19,6 +19,16 @@ const schema = a.schema({
       plan: a.string(),
     })
     .authorization((allow) => [allow.publicApiKey()]),
+  Order: a
+    .model({
+      email: a.string(),
+      amount: a.float(),
+      timestamp: a.datetime(),
+      status: a.string(),
+      externalId: a.string(),
+      payment: a.string(),
+    })
+    .authorization((allow) => [allow.publicApiKey()]),
   });
 
 export type Schema = ClientSchema<typeof schema>;
