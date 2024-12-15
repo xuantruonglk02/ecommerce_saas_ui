@@ -1,5 +1,6 @@
 import { Schema } from "@/amplify/data/resource";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/authStore";
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { generateClient } from "aws-amplify/api";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ export default function CheckoutForm({ email, plan, dpmCheckerLink }: { email: s
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  const setPlan = useAuthStore((state) => state.setPlan);
 
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -44,11 +46,17 @@ export default function CheckoutForm({ email, plan, dpmCheckerLink }: { email: s
             .then((data) => new Promise((resolve, reject) => {
               if (data.data.length) {
                 client.models.UserPlan.update({ id: data.data[0].id, plan: plan })
-                  .then(resolve)
+                  .then((data) => {
+                    setPlan(plan);
+                    resolve(data);
+                  })
                   .catch(reject);
               } else {
                 client.models.UserPlan.create({ email: email, plan: plan })
-                  .then(resolve)
+                  .then((data) => {
+                    setPlan(plan);
+                    resolve(data);
+                  })
                   .catch(reject);
               }
             }))

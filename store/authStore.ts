@@ -9,10 +9,11 @@ export interface AuthState {
   user: IUser;
   loadLoggedUser: () => void;
   setUser: (value: IUser) => void;
+  setPlan: (value: string) => void;
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: {} as IUser,
 
   loadLoggedUser: () => {
@@ -27,6 +28,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (typeof window !== 'undefined') {
       set({ user: value });
       localStorage.setItem('user', JSON.stringify(value));
+    }
+  },
+  setPlan: (value) => {
+    if (typeof window !== 'undefined') {
+      set((state) => ({user: {...state.user, plan: value}}));
+      localStorage.setItem('user', JSON.stringify(get().user));
     }
   },
   logout: () => {

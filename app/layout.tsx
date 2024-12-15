@@ -1,5 +1,6 @@
 'use client';
 
+import { Schema } from '@/amplify/data/resource';
 import outputs from '@/amplify_outputs.json';
 import Footer from '@/components/layouts/footer';
 import Header from '@/components/layouts/header';
@@ -7,14 +8,17 @@ import { Toaster } from '@/components/ui/toaster';
 import { useAuthStore } from '@/store/authStore';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import localFont from 'next/font/local';
+import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import './globals.css';
-import { useRouter } from 'next/navigation';
 
 Amplify.configure(outputs);
+
+const client = generateClient<Schema>();
 
 const geistSans = localFont({
   src: '../fonts/GeistVF.woff',
@@ -43,12 +47,19 @@ export default function RootLayout({
     switch (payload.event) {
       case 'signedIn':
         console.log('user have been signedIn successfully.');
-        fetchUserAttributes().then((data) => {
+        fetchUserAttributes().then(async (data) => {
+          let plan;
+          try {
+            const userPlan = await client.models.UserPlan.list({ filter: { email: { eq: data.email }}});
+            plan = userPlan.data.length ? userPlan.data[0].plan as string : undefined;
+          } catch (error) {
+            console.error(error);
+          }
           setUser({
             email: data.email as string,
+            plan,
           });
-        }
-        );
+        });
         break;
       case 'signedOut':
         console.log('user have been signedOut successfully.');

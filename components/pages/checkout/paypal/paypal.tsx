@@ -1,5 +1,6 @@
 import { Schema } from '@/amplify/data/resource';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/store/authStore';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { generateClient } from 'aws-amplify/api';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,7 @@ const client = generateClient<Schema>();
 export default function Paypal({ email, plan }: { email: string, plan: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const setPlan = useAuthStore((state) => state.setPlan);
   
   const paypalCreateOrder = async () => {
     return new Promise((resolve, reject) =>
@@ -72,9 +74,11 @@ export default function Paypal({ email, plan }: { email: string, plan: string })
             await paypalCaptureOrder(data.orderID);
             const plans = await client.models.UserPlan.list({ filter: { email: { eq: email } }});
             if (plans.data.length) {
-              await client.models.UserPlan.update({ id: plans.data[0].id, plan: plan })
+              await client.models.UserPlan.update({ id: plans.data[0].id, plan: plan });
+              setPlan(plan);
             } else {
               await client.models.UserPlan.create({ email: email, plan: plan });
+              setPlan(plan);
             }
             router.push(`/thankyou`);
           } catch (error: any) {
